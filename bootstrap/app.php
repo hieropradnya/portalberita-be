@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'isPostsOwner' => \App\Http\Middleware\PostsOwner::class,
+            'isCommentator' => \App\Http\Middleware\Commentator::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
