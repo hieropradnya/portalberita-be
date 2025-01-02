@@ -22,7 +22,7 @@ class PostController extends Controller
 
     function show($id)
     {
-        $post = Post::with('writer:id,username')->findOrFail($id);
+        $post = Post::with(['writer:id,username', 'comments:id,post_id,user_id,comments_content'])->findOrFail($id);
         return new PostDetailResource($post);
     }
 
