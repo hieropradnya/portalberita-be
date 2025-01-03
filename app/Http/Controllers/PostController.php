@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PostDetailResource;
-use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use App\Http\Resources\PostResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\PostDetailResource;
 
 class PostController extends Controller
 {
@@ -33,6 +34,19 @@ class PostController extends Controller
             'title' => 'required|max:255',
             'news_content' => 'required',
         ]);
+
+        // jika ada gambar
+        if ($request->file) {
+            // beri nama file dg random dan ambil ekstensi file yang dikirim
+            $fileName = $this->generateRandomString();
+            $extension = $request->file->extension();
+
+            //kita pindahkan ke storage dengan folder imageBerita
+            Storage::putFileAs('imageBerita', $request->file, $fileName . '.' . $extension);
+
+            // tambahkan ke $request untuk diinputkan nama file ke DB
+            $request['image'] = $fileName . '.' . $extension;
+        }
 
         // simpan id user, tambahkan ke request 
         $request['author'] = Auth::user()->id;
@@ -66,5 +80,18 @@ class PostController extends Controller
         $post->delete();
 
         return new PostDetailResource($post->loadMissing('writer:id,username'));
+    }
+
+    function generateRandomString($length = 30)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+
+        return $randomString;
     }
 }
